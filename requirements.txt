@@ -1,0 +1,3 @@
+tweepy
+bs4
+pyuser-agent
