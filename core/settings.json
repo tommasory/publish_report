@@ -1,0 +1,11 @@
+{
+  "url" : "https://www.aar.org",
+  "reports" : {
+    "label" : "li",
+    "class" : "news-item"
+  },
+  "file" : {
+    "label" : "span",
+    "class" : "button"
+  }
+}

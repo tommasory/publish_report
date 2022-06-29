@@ -1,22 +1,13 @@
 from .web_requests import WebRequests
+from .tools import *
 
 WR = WebRequests()
-SETTINGS = {
-    "url" : "https://www.aar.org",
-    "reports" : {
-        "label" : "li",
-        "class" : "news-item"
-    },
-    "file" : {
-        "label" : "span",
-        "class" : "button"
-    }
-}
+SETTINGS_PATH = "core/settings.json"
 
 class Scraping:
 
     def __init__(self):
-        self._status, self._settings = True, SETTINGS
+        self._status, self._settings = read_json_file(SETTINGS_PATH)
 
     def get_settings(self):
         '''Get configuration variable'''
