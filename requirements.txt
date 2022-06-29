@@ -1,3 +1,4 @@
 tweepy
 bs4
 pyuser-agent
+tabula-py

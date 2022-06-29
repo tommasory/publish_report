@@ -23,7 +23,7 @@ class Scraping:
         if function_status:
             try:
                 function_status = False
-                status, soup = WR.request_server(self.get_settings()["url"])
+                status, soup = WR.request_server_bs4(self.get_settings()["url"])
                 if status:
                     report_list = soup.find_all(self.get_settings()["reports"]["label"],class_=self.get_settings()["reports"]["class"])
                     for report in report_list:
@@ -43,11 +43,12 @@ class Scraping:
         if function_status:
             try:
                 function_status = False
-                status, soup = WR.request_server(response)
+                status, soup = WR.request_server_bs4(response)
                 if status:
                     file_list = soup.find_all(self.get_settings()["file"]["label"],class_=self.get_settings()["file"]["class"])
                     if len(file_list) != 0:
                         path_file = file_list[0].a.get('href')
+                        self.download_pdf_file(path_file)
                         return True, path_file
                     print("There is no file path for this report")
                 else:
@@ -56,3 +57,15 @@ class Scraping:
                 print("An unexpected code error occurred")
 
         return function_status, None
+
+    def download_pdf_file(self, path_file):
+        '''Download a PDF report from the web
+        :param path_file: Report URL.
+        :return: None
+        '''
+        try:
+            status, response = WR.request_server(path_file)
+            open('core/latest_report.pdf', 'wb').write(response.content)
+            print("Report downloaded successfully")
+        except:
+            print("PDF download failed")

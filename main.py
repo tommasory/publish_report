@@ -1,6 +1,7 @@
 import tweepy
 from core.scraping import Scraping
 from datetime import datetime as dt
+from core.read_pdf import tuning_df
 
 CONSUMER_KEY="sJ7jTV0G940R41xRrq8gRvpsS"
 CONSUMER_SECRET="ZZmmZg942j3wGLnHMlV1xnhkwyv9IgUEpoQe4whJQiVrYvvqJO"
@@ -28,9 +29,14 @@ def main():
     status_api, api = start_connection_twitter()
     status_pdf, pdf = scraping.get_report_file()
     if status_api and status_pdf:
-        print("Create twitter post")
-        response = api.update_status(f"{DATE}\nReport : {pdf}")
-        print("Post completed successfully\n")
+        status_ext, df_list = tuning_df()
+        if status_ext:
+            print("Create twitter post")
+            response = api.update_status(f"{DATE}\nReport : {pdf}")
+            for table in df_list:
+                print(table)
+                print('- '*50)
+            print("Post completed successfully\n")
 
 if __name__ == "__main__":
     print(f"\n[{DATE}] : EXECUTION REPORT")
