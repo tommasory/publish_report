@@ -1,4 +1,10 @@
 import json
+from datetime import datetime as dt
+
+DATE = dt.today()
+
+def message(text=""):
+    print(f"[{DATE}] : "+text)
 
 def read_json_file(path : str):
     '''Method to load JSON file
@@ -14,10 +20,9 @@ def read_json_file(path : str):
         return False, err
 
 def write_json_file(path:str, data:dict):
-    '''
-
-    :param path:
-    :param data:
+    '''update a json file
+    :param path: file path
+    :param data: file data
     :return:
     '''
     try:

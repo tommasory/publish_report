@@ -1,8 +1,7 @@
-from .web_requests import WebRequests
 from .tools import *
+from .web_requests import WebRequests
 
 WR = WebRequests()
-
 
 class Scraping:
 
@@ -55,11 +54,11 @@ class Scraping:
                         path_file = file_list[0].a.get('href')
                         self.download_pdf_file(path_file)
                     else:
-                        print("There is no file path for this report")
+                        message("There is no file path for this report")
                 else:
-                    print(soup)
+                    message(soup)
             except:
-                print("An unexpected code error occurred")
+                message("An unexpected code error occurred")
 
     def download_pdf_file(self, path_file):
         '''Download a PDF report from the web
@@ -72,30 +71,33 @@ class Scraping:
                 file_name = path_file.rsplit('/',1)[1]
                 aux_report_path = f'core/static/{file_name}'
                 open(aux_report_path, 'wb').write(response.content)
-                print("Report downloaded successfully")
+                message("Report downloaded successfully")
                 self.report_name = file_name.rsplit("-",1)[0]
                 self.file_path = aux_report_path
                 self.verify_report_publication()
             else:
                 print(response)
         except:
-            print("PDF download failed")
+            message("PDF download failed")
 
     def verify_report_publication(self):
+        ''' check if the latest report can be published
+        :return: Status
+        '''
         status, reports = read_json_file(self.report_log_path)
         if status:
             try:
                 report = reports[self.report_name]
                 if report["pub_status"] == "off":
-                    print(f"This report is not yet published - [{self.report_name}]")
+                    message(f"This report is not yet published - [{self.report_name}]")
                     self.status = True
                 else:
-                    print(f"This report has already been published - [{self.report_name}]")
+                    message(f"This report has already been published - [{self.report_name}]")
             except KeyError:
-                print(f"This report is not yet published - [{self.report_name}]")
+                message(f"This report is not yet published - [{self.report_name}]")
                 reports[self.report_name] = {"pub_status":"off"}
                 status, response = write_json_file(self.report_log_path, reports)
                 if not status:
-                    print(response)
+                    message(response)
                 else:
                     self.status = True

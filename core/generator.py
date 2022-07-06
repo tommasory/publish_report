@@ -3,20 +3,22 @@ import itertools
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
-from core.tools import read_json_file
+from core.tools import read_json_file, message
 
-BUILD_FILE_PATH = "core/static/post_settings.json"
+class ImageGenerator:
 
-class GeneratingImages:
-
-    def __int__(self):
-        self.directory_name = ""
-        self.seed_file_path = ""
+    def __init__(self, build_file_path:str, image_file_path:str, seed_file_path:str):
+        self.build_file_path = build_file_path
+        self.image_file_path = image_file_path
+        self.seed_file_path = seed_file_path
         self.list_images = []
         self.status = False
 
     def get_combination_list(self):
-        status, list_json = read_json_file(BUILD_FILE_PATH)
+        ''' Genera una combinación de los diferentes filtros para crear las imágenes.
+        :return:  Status, List
+        '''
+        status, list_json = read_json_file(self.build_file_path)
         list_comb = []
         list_aux = []
         if status:
@@ -27,37 +29,37 @@ class GeneratingImages:
                     list_comb.append(combinacion)
                 return True, list_comb
             except:
-                print("Could not extract the configuration file to build the images")
+                message("Could not extract the configuration file to build the images")
                 pass
         return False, list_comb
 
-    def const_images(self, directory_name:str, seed_file_path:str):
+    def create_list_images(self):
+        '''create a list of images
+        :param image_file_path: image file path
+        :param seed_file_path: seed file path
+        :return: Status
+        '''
         self.list_images = []
-        self.directory_name = directory_name
-        self.seed_file_path = seed_file_path
-        print(f"Dir : {self.directory_name}")
-        if not os.path.exists(self.directory_name):
-            os.makedirs(self.directory_name)
+        if not os.path.exists(self.image_file_path):
+            os.makedirs(self.image_file_path)
 
         status, list_comb = self.get_combination_list()
         if status:
             for comb in list_comb:
                 try:
-                    print(comb[0], comb[1], comb[2])
                     self.generate_graph(comb[0], comb[1], comb[2])
-                    print(f"Generating image : {comb}")
+                    message(f"Generating image : {comb}")
                 except:
-                    print(f"Error building image : {comb}")
+                    message(f"Error building image : {comb}")
 
         self.status = len(self.list_images) != 0
 
     def generate_graph(self, country,filter_1,filter_2):
         '''Genera una imagen apartir de un pais y dos filtros
-
         :param country: Pais del cual quiero generar la grafica
-        :param filter_1:
-        :param filter_2:
-        :return:
+        :param filter_1: row filter
+        :param filter_2: column filter
+        :return: Status
         '''
         date=str(datetime.today().strftime('%Y-%m-%d'))
         name=date+'_'+country+'_'+filter_2+'.png'
@@ -95,6 +97,6 @@ class GeneratingImages:
             df[[filter_2]]=df[[filter_2]].astype(float)
             fig = px.line(df, x='date', y=filter_2,color='country',title=filter_2+' for country',markers=True)
 
-        image_path = f"{self.directory_name}/{name}"
+        image_path = f"{self.image_file_path}/{name}"
         fig.write_image(r''+image_path)
         self.list_images.append(image_path)

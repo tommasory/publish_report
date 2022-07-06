@@ -1,0 +1,11 @@
+{
+  "consumer_key": "sJ7jTV0G940R41xRrq8gRvpsS",
+  "consumer_secret": "ZZmmZg942j3wGLnHMlV1xnhkwyv9IgUEpoQe4whJQiVrYvvqJO",
+  "access_token": "1512196084218712070-zzVWXk1Ftse0tj0zHOiEqUU0Huk8bN",
+  "access_token_secret": "kKoTayt4n08beZSE9G3q77XBQGh5oIBwhj7WxAyTAbJ6B",
+  "configuration_file_path": "core/static/settings.json",
+  "reporting_log_path": "core/static/reports.json",
+  "seed_file_path": "core/static/csv_seed.csv",
+  "build_file_path": "core/static/post_settings.json",
+  "image_directory_path": "core/img/"
+}

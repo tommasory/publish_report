@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 UA = pyuser_agent.UA()
 
-class WebRequests():
+class WebRequests:
 
     def __init__(self):
         self._headers = {"User-Agent" : UA.chrome}

@@ -1,3 +1,4 @@
+from .tools import message
 from tabula import read_pdf
 
 
@@ -54,6 +55,7 @@ def separate_columns(df):
     return df[['Unnamed: 0','Cars','2021_week','Cumulative','Avg/wk','2021_Y-t-d']]
 
 def extract_tables_file(file):
+    message("Extract tables from PDF report file")
     try:
         dict_country={0:'U.S',1:'Canadian',2:'Mexican',3:'North_american'}
         date_file=file[-26:][:10]
@@ -66,8 +68,8 @@ def extract_tables_file(file):
             df['date']=[date_file]*len(df)
             i=i+1
         if len(df_list) != 0:
-            print(f"Successful extraction of information from {len(df_list)} tables")
+            message(f"Successful extraction of information from {len(df_list)} tables")
             return True, df_list
     except:
-         print("Error extracting information from report")
+        message("Error extracting information from report")
     return False, None

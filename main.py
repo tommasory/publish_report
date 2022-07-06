@@ -1,56 +1,60 @@
+import os
 import tweepy
+import pandas as pd
+from core.tools import *
 from core.scraping import Scraping
-from datetime import datetime as dt
 from core.read_pdf import extract_tables_file
-from core.write_sheed_file import write_seedfile
-from core.generator import GeneratingImages
+from core.generator import ImageGenerator
 
-CONSUMER_KEY="sJ7jTV0G940R41xRrq8gRvpsS"
-CONSUMER_SECRET="ZZmmZg942j3wGLnHMlV1xnhkwyv9IgUEpoQe4whJQiVrYvvqJO"
-ACCESS_TOKEN="1512196084218712070-zzVWXk1Ftse0tj0zHOiEqUU0Huk8bN"
-ACCESS_TOKEN_SECRET="kKoTayt4n08beZSE9G3q77XBQGh5oIBwhj7WxAyTAbJ6B"
+# system_variables
+status, sv = read_json_file("core/static/system_variables.json")
 
-CONFIGURATION_FILE_PATH = "core/static/settings.json"
-REPORTING_LOG_PATH = "core/static/reports.json"
-SEED_FILE_PATH = "core/static/csv_seed.csv"
+def write_seedfile(path_file, list_tables):
+    message("Updating the seed file with a new report")
 
-DATE = dt.today()
+    try:
+        df_seed=pd.read_csv(r''+path_file)
+        for df in list_tables:
+            if len(df.merge(df_seed)) != len(df):
+                df.to_csv(r''+path_file, mode='a', index=False, header=False,sep=',',decimal=',')
+        return True
+    except:
+        message("CSV file update failed")
+        return False
 
 def start_connection_twitter():
     '''Authenticate to Twitter'''
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-    # Create API object
+    auth = tweepy.OAuthHandler(sv["consumer_key"], sv["consumer_secret"])
+    auth.set_access_token(sv["access_token"], sv["access_token_secret"])
     api = tweepy.API(auth)
     try:
         api.verify_credentials()
-        print("Authentication OK")
+        message("Authentication OK")
         return True, api
     except:
-        print("Error during authentication with Twitter API")
+        message("Error during authentication with Twitter API")
         return False, None
 
 def main():
-    scraping = Scraping(CONFIGURATION_FILE_PATH, REPORTING_LOG_PATH)
+    scraping = Scraping(sv["configuration_file_path"], sv["reporting_log_path"])
     status_api, api = start_connection_twitter()
     scraping.get_report_file()
     if status_api and scraping.status:
-        print(f"Extract tables from PDF report file")
         status_ext, df_list = extract_tables_file(scraping.file_path)
-        print(f"Updating the seed file with a new report")
-        status_seed = write_seedfile(SEED_FILE_PATH, df_list)
+        status_seed = write_seedfile(sv["seed_file_path"], df_list)
         if status_ext and status_seed:
-            print("Construction of images")
-            image_directory_path = f"core/img/{scraping.report_name}"
-            generator_obj = GeneratingImages()
-            generator_obj.const_images(image_directory_path, SEED_FILE_PATH)
+            message("Construction of images")
+            generator_obj = ImageGenerator(sv["build_file_path"], f"{sv['image_directory_path']}/{scraping.report_name}", sv["seed_file_path"])
+            generator_obj.create_list_images()
             if generator_obj.status:
-                print("Create twitter post")
-                media_ids = [api.media_upload(url).media_id for url in generator_obj.list_images]
-                tweet='Texto de prueba'
-                post_result = api.update_status(status=tweet, media_ids=media_ids)
-                print("Post completed successfully\n")
+                try:
+                    message("Create twitter post")
+                    media_ids = [api.media_upload(url).media_id for url in generator_obj.list_images]
+                    api.update_status(status='Texto de prueba', media_ids=media_ids)
+                    message("Post completed successfully\n")
+                except:
+                    message("Tweet posting failed\n")
 
 if __name__ == "__main__":
-    print(f"\n[{DATE}] : EXECUTION REPORT")
+    message("EXECUTION REPORT")
     main()
