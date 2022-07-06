@@ -1,5 +1,6 @@
 import os
 import tweepy
+import shutil
 import pandas as pd
 from core.tools import *
 from core.scraping import Scraping
@@ -8,6 +9,25 @@ from core.generator import ImageGenerator
 
 # system_variables
 status, sv = read_json_file("core/static/system_variables.json")
+
+def clean_records(image_file_path, file_path, build_file_path, report_name):
+    '''clean generated files'''
+    message("Clean generated files\n")
+    try:
+        shutil.rmtree(image_file_path)
+
+        status, reports = read_json_file(build_file_path)
+        if status:
+            reports[report_name]["pub_status"] = "on"
+            write_json_file(build_file_path, reports)
+
+    except OSError as error:
+        message(f'Error removing directory : {error}')
+
+    except KeyError as error:
+        message(f'Error changing report status')
+
+
 
 def write_seedfile(path_file, list_tables):
     message("Updating the seed file with a new report")
@@ -51,7 +71,8 @@ def main():
                     message("Create twitter post")
                     media_ids = [api.media_upload(url).media_id for url in generator_obj.list_images]
                     api.update_status(status='Texto de prueba', media_ids=media_ids)
-                    message("Post completed successfully\n")
+                    message("Post completed successfully")
+                    clean_records(generator_obj.image_file_path, scraping.file_path, sv["reporting_log_path"], scraping.report_name)
                 except:
                     message("Tweet posting failed\n")
 

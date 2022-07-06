@@ -33,7 +33,7 @@ class Scraping:
                     for report in report_list:
                         reports.append(report.a.get('href'))
                     if len(reports) != 0:
-                        return True, reports[1]
+                        return True, reports[0]
                     soup = "No reports found on current configurations."
             except:
                 soup = "An unexpected code error occurred"

@@ -7,7 +7,7 @@ UA = pyuser_agent.UA()
 class WebRequests:
 
     def __init__(self):
-        self._headers = {"User-Agent" : UA.chrome}
+        self._headers = {"User-Agent" : UA.random}
 
     def request_header(self):
         return self._headers
